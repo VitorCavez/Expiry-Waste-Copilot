@@ -10,9 +10,7 @@ import {
   Urgency,
   ActionType,
   ActionItem,
-  ReorderSuggestion,
   MappingResultSchema,
-  AnalysisResultSchema,
   DebugLog,
   Thresholds,
   ReorderSettings
@@ -404,9 +402,11 @@ export class GeminiService {
   }
 
   public parseDate(val: any): Date | null {
-    if (!val) return null;
+    if (val === null || val === undefined || val === '') return null;
     if (typeof val === 'number') {
-      if (val > 30000 && val < 60000) return new Date(Math.round((val - 25569) * 864e5));
+      if (val > 30000 && val < 60000) {
+        return new Date(Math.round((val - 25569) * 864e5));
+      }
     }
     if (typeof val === 'string') {
       const trimmed = val.trim();
@@ -414,9 +414,21 @@ export class GeminiService {
       const parts = trimmed.split(/[/-]/);
       if (parts.length === 3) {
         let d, m, y;
-        if (parts[0].length === 4) { y = parseInt(parts[0]); m = parseInt(parts[1]) - 1; d = parseInt(parts[2]); }
-        else { d = parseInt(parts[0]); m = parseInt(parts[1]) - 1; y = parts[2].length === 2 ? 2000 + parseInt(parts[2]) : parseInt(parts[2]); }
+        if (parts[0].length === 4) {
+          y = parseInt(parts[0]);
+          m = parseInt(parts[1]) - 1;
+          d = parseInt(parts[2]);
+        } else {
+          d = parseInt(parts[0]);
+          m = parseInt(parts[1]) - 1;
+          y = parts[2].length === 2 ? 2000 + parseInt(parts[2]) : parseInt(parts[2]);
+        }
+        
+        // Month and day range validation to catch heuristic mismatches (like 05/20/2025)
+        if (isNaN(d) || isNaN(m) || isNaN(y) || m < 0 || m > 11 || d < 1 || d > 31) return null;
+        
         const dt = new Date(Date.UTC(y, m, d));
+        // Check if date creation overflowed (e.g. Feb 30th)
         return (!isNaN(dt.getTime()) && dt.getUTCDate() === d) ? dt : null;
       }
       const dt = new Date(trimmed);
@@ -497,8 +509,8 @@ export class GeminiService {
       buckets, today_actions, zero_stock_items,
       reorder_suggestions: [],
       insights: [
-        { title: "Risk Exposure", detail: `${buckets.expired.length} expired items found.` },
-        { title: "Upcoming", detail: `${buckets.use_today.length} items to use today.` }
+        { title: "Manual Check Required", detail: `${buckets.expired.length} expired items were identified in current stock.` },
+        { title: "High Urgency", detail: `${buckets.use_today.length} items are due for production or use today.` }
       ]
     };
   }

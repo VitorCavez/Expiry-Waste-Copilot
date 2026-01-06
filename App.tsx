@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { 
   AppState, 
@@ -326,7 +327,7 @@ export default function App() {
       }));
       showToast("AI Insights refreshed", "success");
     } else if (state.aiAssistEnabled) {
-      showToast("AI Assist unavailable. Budget reached or cooldown active.", "info");
+      showToast("AI Assist unavailable (budget limit or cooldown active)", "info");
     }
     setGeneratingInsights(false);
   };
@@ -1165,7 +1166,7 @@ export default function App() {
                       )}
                     </div>
 
-                    {/* Focused Sub-totals Breakdown */}
+                    {/* RESTORED: Focused Sub-totals Breakdown */}
                     <div className="bg-white p-8 rounded-[2rem] border shadow-sm animate-in fade-in duration-500">
                        <div className="flex items-center justify-between mb-8">
                           <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest">
