@@ -1,0 +1,5 @@
+{
+  "name": "Expiry & Waste Copilot (Meat / Cold Store Mode)",
+  "description": "A specialized inventory tool for cold stores and butchers to manage expiry risk, generate daily action lists, and log waste from spreadsheets.",
+  "requestFramePermissions": []
+}
